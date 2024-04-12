@@ -1,0 +1,30 @@
+name: freeDom
+on: [push]
+jobs:
+  # 定义一个作业名称
+  buildProject:
+    runs-on: ubuntu-latest
+    env:
+      VITE_PROJECTNAME: ${{ secrets.VITE_PROJECTNAME }}
+    steps:
+      # 1、下载代码
+      - uses: actions/checkout@v4
+      # 2、安装pnpm
+      - uses: pnpm/action-setup@v3.0.0
+        with:
+          version: '8.15.6'
+      # 3、安装依赖
+      - name: pnpm下载依赖
+        run: pnpm install
+      # 4、构建项目
+      - name: pnpm构建项目
+        run: pnpm build
+      # 5、上传构建好的文件到服务器
+      - name: 上传到服务器
+        uses: easingthemes/ssh-deploy@v5.0.3
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          SOURCE: ./blog
+          TARGET: /usr/local/nginx/html/
